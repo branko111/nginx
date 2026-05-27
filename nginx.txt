@@ -21,3 +21,65 @@ server {
         try_files $uri $uri/ =404;
     }
 }
+
+
+
+# ...... IP 6  HTTP/3 ..........
+
+
+
+server {
+    # 1. Listen ONLY on IPv6 (UDP for QUIC/HTTP3)
+    # The 'ipv6only=on' flag ensures it does not accept IPv4-mapped addresses
+    listen [::]:443 quic reuseport ipv6only=on;
+
+    # 2. Listen ONLY on IPv6 (TCP for initial TLS handshake)
+    # Browsers still need a TCP connection to discover HTTP/3 via headers
+    listen [::]:443 ssl ipv6only=on;
+
+    server_name example.com;
+
+    # 3. Explicitly Disable HTTP/2
+    http2 off;
+    http3 on;
+
+    # 4. Mandatory TLS 1.3 for HTTP/3
+    ssl_protocols TLSv1.3;
+    ssl_certificate /path/to/your/certificate.crt;
+    ssl_certificate_key /path/to/your/private.key;
+
+    # 5. Advertise HTTP/3 to the browser
+    add_header Alt-Svc 'h3=":443"; ma=86400';
+
+    location / {
+        root /var/www/html;
+    }
+}
+
+
+
+# ...... IP 6  HTTP/3  NO NOTES ..........
+
+server {
+
+    listen [::]:443 quic reuseport ipv6only=on;
+
+    listen [::]:443 ssl ipv6only=on;
+
+    server_name a.com;
+
+    http2 off;
+    http3 on;
+
+    ssl_protocols TLSv1.3;
+    ssl_certificate /path/to/your/certificate.crt;
+    ssl_certificate_key /path/to/your/private.key;
+
+    add_header Alt-Svc 'h3=":443"; ma=86400';
+
+    location / {
+        root /var/www/a.com;
+    }
+}
+
+# ...... IP 6  HTTP/3  NO NOTES ... END  .......
