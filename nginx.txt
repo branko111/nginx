@@ -6,3 +6,18 @@ server {
                try_files $uri $uri/ =404;
        }
 }
+
+# ...... IP 6 ..........
+
+server {
+    # Listen on port 80 for IPv6 only
+    listen [::]:80 ipv6only=on;
+
+    server_name a.com;
+    root /var/www/a.com;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
